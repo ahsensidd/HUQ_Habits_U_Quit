@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Education Hub – HUQ</title>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+
+    /* ── Tokens ── */
+    :root {
+      --primary:        #1A5F5F;
+      --primary-dim:    rgba(26,95,95,0.12);
+      --primary-mid:    rgba(26,95,95,0.25);
+      --accent:         #2A8A8A;
+      --bg:             #F9F6F1;
+      --surface:        #FFFFFF;
+      --surface2:       #F2EDE6;
+      --border:         #E0D8CE;
+      --text:           #1A1A1A;
+      --text2:          #4A4A4A;
+      --muted:          #888880;
+      --placeholder-bg: #F0EBE3;
+      --shadow:         rgba(0,0,0,0.08);
+      --radius-sm:      10px;
+      --radius-md:      16px;
+      --radius-lg:      22px;
+      --transition:     0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    [data-theme="dark"] {
+      --bg:             #0D1B1B;
+      --surface:        #152828;
+      --surface2:       #1C3333;
+      --border:         #1F3A3A;
+      --text:           #F0F0F0;
+      --text2:          #B8C8C8;
+      --muted:          #6A8A8A;
+      --placeholder-bg: #0F2424;
+      --primary-dim:    rgba(26,95,95,0.20);
+      --primary-mid:    rgba(26,95,95,0.35);
+      --shadow:         rgba(0,0,0,0.35);
+    }
+
+    /* ── Base ── */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100dvh;
+      overscroll-behavior: none;
+    }
+
+    /* ── Layout Shell ── */
+    #app {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+    }
+
+    /* ── Header ── */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+    }
+    .back-btn {
+      background: var(--primary-dim);
+      border: none;
+      color: var(--primary);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background var(--transition);
+      flex-shrink: 0;
+    }
+    .back-btn:active { background: var(--primary-mid); }
+    .top-bar-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .huq-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-dim);
+      padding: 4px 10px;
+      border-radius: 50px;
+      flex-shrink: 0;
+    }
+
+    /* ── Page views ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Hero (home) ── */
+    .home-hero {
+      background: linear-gradient(145deg, var(--primary) 0%, var(--accent) 100%);
+      padding: 36px 24px 28px;
+      text-align: center;
+      color: #fff;
+    }
+    .home-hero-icon { font-size: 52px; margin-bottom: 10px; display: block; }
+    .home-hero h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 8px; }
+    .home-hero p { font-size: 14px; opacity: 0.88; line-height: 1.6; max-width: 340px; margin: 0 auto; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 24px 20px 10px;
+    }
+
+    /* ── Category grid ── */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 0 16px 8px;
+    }
+    .cat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 14px 16px;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      -webkit-tap-highlight-color: transparent;
+      text-align: left;
+    }
+    .cat-card:active { transform: scale(0.97); background: var(--surface2); }
+    .cat-card-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+    .cat-card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+    .cat-card-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .cat-card-arrow { font-size: 18px; color: var(--primary); font-weight: 300; margin-top: 10px; display: block; }
+
+    /* General topics get a teal left border accent */
+    .cat-card.general { border-left: 3px solid var(--primary); }
+
+    /* ── Category page ── */
+    .cat-hero {
+      background: var(--primary-dim);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .cat-hero-icon { font-size: 44px; flex-shrink: 0; }
+    .cat-hero-title { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    .cat-hero-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+    /* ── Topic list ── */
+    .topic-list { padding: 12px 16px 40px; display: flex; flex-direction: column; gap: 10px; }
+    .topic-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background var(--transition), transform var(--transition);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .topic-card:active { background: var(--surface2); transform: scale(0.98); }
+    .topic-card-num {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--primary-dim);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .topic-card-body { flex: 1; }
+    .topic-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .topic-card-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .topic-card-arrow { font-size: 20px; color: var(--muted); flex-shrink: 0; }
+    .topic-card.has-video .topic-card-num { background: var(--primary); color: #fff; }
+    .topic-card.has-video .topic-card-arrow { color: var(--primary); }
+
+    /* ── Video page ── */
+    .video-hero {
+      background: var(--primary-dim);
+      border-bottom: 1px solid var(--border);
+      padding: 20px;
+    }
+    .video-hero-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .video-hero-desc { font-size: 14px; color: var(--text2); line-height: 1.55; }
+
+    .video-wrap {
+      margin: 20px 16px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 16/9;
+      position: relative;
+    }
+    .video-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .video-placeholder {
+      width: 100%;
+      height: 100%;
+      background: var(--placeholder-bg);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+    }
+    .video-placeholder-icon { font-size: 42px; opacity: 0.5; }
+    .video-placeholder-text { font-size: 15px; font-weight: 600; }
+    .video-placeholder-sub { font-size: 12px; opacity: 0.7; }
+
+    .video-notes {
+      margin: 0 16px 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .video-notes-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .video-notes-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+    /* ── Bottom padding ── */
+    .pb { height: 32px; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ═══════════════════════════════════════════════
+       VIEW: HOME
+  ════════════════════════════════════════════════ -->
+  <div id="view-home" class="view active">
+    <div class="top-bar">
+      <span class="top-bar-title">Education Hub</span>
+      <span class="huq-badge">HUQ</span>
+    </div>
+
+    <div class="home-hero">
+      <span class="home-hero-icon">🎓</span>
+      <h1>Recovery Education</h1>
+      <p>Evidence-based videos and Islamic guidance to support every stage of your journey.</p>
+    </div>
+
+    <p class="section-label">General Topics</p>
+    <div class="cat-grid" id="general-grid"></div>
+
+    <p class="section-label">Specific Addictions</p>
+    <div class="cat-grid" id="specific-grid"></div>
+
+    <div class="pb"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       VIEW: CATEGORY
+  ════════════════════════════════════════════════ -->
+  <div id="view-category" class="view">
+    <div class="top-bar">
+      <button class="back-btn" onclick="showHome()">&#8592; Back</button>
+      <span class="top-bar-title" id="cat-bar-title"></span>
+    </div>
+    <div class="cat-hero">
+      <span class="cat-hero-icon" id="cat-icon"></span>
+      <div>
+        <div class="cat-hero-title" id="cat-title"></div>
+        <div class="cat-hero-desc" id="cat-desc"></div>
+      </div>
+    </div>
+    <div class="topic-list" id="topic-list"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       VIEW: TOPIC / VIDEO
+  ════════════════════════════════════════════════ -->
+  <div id="view-topic" class="view">
+    <div class="top-bar">
+      <button class="back-btn" id="topic-back-btn">&#8592; Back</button>
+      <span class="top-bar-title" id="topic-bar-title"></span>
+    </div>
+    <div class="video-hero">
+      <div class="video-hero-title" id="topic-title"></div>
+      <div class="video-hero-desc" id="topic-desc"></div>
+    </div>
+    <div class="video-wrap" id="video-container"></div>
+    <div class="video-notes">
+      <div class="video-notes-label">About this topic</div>
+      <div class="video-notes-text" id="topic-notes"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ──────────────────────────────────────────────
+// THEME
+// ──────────────────────────────────────────────
+(function applyTheme() {
+  const param = new URLSearchParams(location.search).get('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const dark = param === 'dark' || (!param && prefersDark);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+})();
+
+// ──────────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────────
+const categories = [
+  // ── GENERAL ──────────────────────────────────
+  {
+    id: 'understanding', icon: '🧠', type: 'general',
+    title: 'Understanding Addiction',
+    desc: 'The science behind addiction and habit formation',
+    topics: [
+      { id: 'u1', title: 'What is Addiction?',           desc: 'A scientific overview of addiction and dependency',          videoId: '', notes: 'Explore the medical and psychological definition of addiction, how it differs from casual use, and why it\'s considered a brain disorder rather than a moral failing.' },
+      { id: 'u2', title: 'How Habits Form & Break',      desc: 'The neurological basis of habit loops',                      videoId: '', notes: 'Learn about the basal ganglia\'s role in habit formation, the cue-routine-reward cycle, and what neuroscience tells us about lasting behaviour change.' },
+      { id: 'u3', title: 'The Dopamine Trap',            desc: 'How reward systems drive compulsive behaviour',               videoId: '', notes: 'Understand how dopamine creates anticipation rather than pleasure, why addictive behaviours hijack this system, and how the brain adjusts to over-stimulation.' },
+      { id: 'u4', title: 'Why Willpower Isn\'t Enough',  desc: 'Beyond self-control — what actually works',                  videoId: '', notes: 'Research shows willpower is a limited resource that depletes. Discover the evidence-based strategies that actually produce lasting change.' },
+      { id: 'u5', title: 'Triggers & Environment',       desc: 'How your surroundings shape your behaviour',                 videoId: '', notes: 'Environmental cues silently drive compulsive behaviour. Learn how to identify, restructure, and disarm the contexts that trigger your habit.' },
+      { id: 'u6', title: 'Addiction vs. Dependency',     desc: 'Understanding the key differences',                          videoId: '', notes: 'Physical dependency and psychological addiction are related but distinct. This video clarifies the difference and what each means for recovery.' },
+    ]
+  },
+  {
+    id: 'recovery', icon: '🌱', type: 'general',
+    title: 'The Recovery Journey',
+    desc: 'What to expect as you heal and grow',
+    topics: [
+      { id: 'r1', title: 'Stages of Recovery',           desc: 'From contemplation to lasting change',                       videoId: '', notes: 'Recovery follows recognisable stages: pre-contemplation, contemplation, preparation, action, and maintenance. Knowing which stage you\'re in helps you take the right next step.' },
+      { id: 'r2', title: 'What Happens When You Quit',   desc: 'Brain and body changes over time',                           videoId: '', notes: 'A timeline of what happens to your brain chemistry, mood, sleep, and physical health as your body detoxes and begins to heal — hour by hour, day by day.' },
+      { id: 'r3', title: 'Navigating Withdrawal',        desc: 'Physical and emotional challenges of stopping',              videoId: '', notes: 'Withdrawal looks different for every addiction. This video covers what to expect physically and emotionally, and how to prepare for the hardest days.' },
+      { id: 'r4', title: 'Milestones: Day 1 to Year 1',  desc: 'A timeline of recovery milestones',                          videoId: '', notes: 'Celebrating milestones builds momentum. Follow the remarkable changes that occur at 24 hours, 1 week, 30 days, 90 days, and 1 year of freedom.' },
+      { id: 'r5', title: 'Dealing with Relapse',         desc: 'Why it happens and how to recover',                          videoId: '', notes: 'Relapse is a common part of recovery — not a failure. Learn why it happens, the warning signs to catch early, and how to return to your path with clarity.' },
+      { id: 'r6', title: 'Building a New Identity',      desc: 'Becoming the person you want to be',                         videoId: '', notes: 'Lasting recovery requires more than stopping a behaviour — it requires a new self-concept. Explore how identity-based habits and narrative reframing cement lasting change.' },
+    ]
+  },
+  {
+    id: 'coping', icon: '🛡️', type: 'general',
+    title: 'Coping with Urges',
+    desc: 'Practical tools to overcome cravings in the moment',
+    topics: [
+      { id: 'c1', title: 'Understanding Urges',          desc: 'Why cravings rise and fall like waves',                       videoId: '', notes: 'Urges are time-limited — they always pass. Understand the neurological wave cycle of a craving and why simply waiting is one of the most powerful tools.' },
+      { id: 'c2', title: 'Urge Surfing',                 desc: 'Riding out cravings without giving in',                      videoId: '', notes: 'A mindfulness-based technique from addiction psychology. Learn to observe a craving as a wave — to ride it without wiping out.' },
+      { id: 'c3', title: 'Emergency Coping Toolkit',     desc: 'What to do in the first 10 critical minutes',               videoId: '', notes: 'Build a personal toolkit of rapid interventions: breathing techniques, physical interrupts, the 5-4-3-2-1 grounding method, and distraction strategies.' },
+      { id: 'c4', title: 'Identifying Your Triggers',    desc: 'Mapping the situations that lead to slips',                  videoId: '', notes: 'Triggers are specific, predictable, and mappable. This video walks through the T.H.A.L.T. framework (Tired, Hungry, Angry, Lonely, Tired) and personalised trigger mapping.' },
+      { id: 'c5', title: 'Mindfulness for Cravings',     desc: 'Presence-based techniques that work',                        videoId: '', notes: 'Mindfulness doesn\'t mean emptying your mind — it means watching your mind without being controlled by it. Practical exercises for dealing with cravings in real time.' },
+      { id: 'c6', title: 'Creating a Crisis Plan',       desc: 'Preparing before the next urge hits',                        videoId: '', notes: 'The worst time to make decisions is during a craving. A pre-written crisis plan gives you a script to follow before your rational mind gets overridden.' },
+    ]
+  },
+  {
+    id: 'habits', icon: '⚡', type: 'general',
+    title: 'Building Better Habits',
+    desc: 'Replace old patterns with life-giving ones',
+    topics: [
+      { id: 'h1', title: 'The Habit Loop',                desc: 'Cue, routine, reward — and how to rewire it',               videoId: '', notes: 'Charles Duhigg\'s habit loop explains almost every automatic behaviour. Learn to isolate each component and substitute a healthier routine while keeping the same cue and reward.' },
+      { id: 'h2', title: 'Replacement Behaviours',        desc: 'Finding healthy substitutes that actually stick',            videoId: '', notes: 'The most effective way to quit a habit is to replace it. Discover the criteria for a good replacement behaviour and how to match the psychological payoff of your old one.' },
+      { id: 'h3', title: 'Morning Routines for Recovery', desc: 'Starting each day with intention and structure',             videoId: '', notes: 'The first hour of your day sets the neurological tone. Build a morning routine that primes your brain for discipline, clarity, and gratitude.' },
+      { id: 'h4', title: 'Exercise & Recovery',           desc: 'How physical movement heals the addicted brain',             videoId: '', notes: 'Exercise is one of the most scientifically validated interventions for addiction recovery — it restores dopamine sensitivity, reduces anxiety, and rewires reward pathways.' },
+      { id: 'h5', title: 'Sleep & Healing',               desc: 'The underrated foundation of sustained recovery',            videoId: '', notes: 'Sleep deprivation amplifies cravings and impairs decision-making by up to 40%. Learn sleep hygiene strategies specifically tailored for those in recovery.' },
+      { id: 'h6', title: 'Social Connections',            desc: 'Building a support network that lifts you',                  videoId: '', notes: 'Connection is the opposite of addiction. Research consistently shows that the quality of your relationships predicts recovery outcomes more than almost any other factor.' },
+    ]
+  },
+  {
+    id: 'mentalhealth', icon: '💙', type: 'general',
+    title: 'Mental Health',
+    desc: 'Emotional wellbeing and inner resilience',
+    topics: [
+      { id: 'm1', title: 'Anxiety & Addiction',           desc: 'The feedback loop and how to break it',                     videoId: '', notes: 'Anxiety and addiction fuel each other in a vicious cycle. Understand the neurological overlap and learn integrated strategies that address both simultaneously.' },
+      { id: 'm2', title: 'Depression & Recovery',         desc: 'Navigating low mood without returning to old habits',        videoId: '', notes: 'Post-acute withdrawal often includes depression as the brain recalibrates. Distinguish normal adjustment from clinical depression and explore healthy interventions.' },
+      { id: 'm3', title: 'Rebuilding Self-Worth',         desc: 'Healing shame and restoring confidence',                     videoId: '', notes: 'Addiction erodes self-image. This video explores practical, research-backed ways to rebuild a healthy sense of self — beyond just stopping the behaviour.' },
+      { id: 'm4', title: 'Managing Shame & Guilt',        desc: 'Turning self-judgment into self-compassion',                 videoId: '', notes: 'Shame ("I am bad") drives relapse. Guilt ("I did something bad") can motivate change. Learn to transform corrosive shame into constructive accountability.' },
+      { id: 'm5', title: 'Emotional Regulation',          desc: 'Feeling emotions without being ruled by them',               videoId: '', notes: 'Many addictions are rooted in the inability to tolerate difficult emotions. DBT-based skills for sitting with discomfort without acting it out.' },
+      { id: 'm6', title: 'When to Seek Help',             desc: 'Recognising when professional support is needed',            videoId: '', notes: 'Recovery doesn\'t have to be done alone. This video outlines the signs that indicate professional therapeutic or psychiatric support would significantly improve outcomes.' },
+    ]
+  },
+  {
+    id: 'islamic', icon: '🤲', type: 'general',
+    title: 'Islamic Guidance',
+    desc: 'Spiritual wisdom for the path of recovery',
+    topics: [
+      { id: 'i1', title: 'Tawbah: The Power of Repentance', desc: 'Returning to Allah after falling short',                  videoId: '', notes: 'Tawbah is not a one-time event but a continuous turning of the heart. Explore the conditions of sincere repentance and Allah\'s limitless mercy for those who return.' },
+      { id: 'i2', title: 'Controlling the Nafs',             desc: 'Islamic psychology of self-discipline',                   videoId: '', notes: 'Islam describes three states of the nafs — the commanding, the self-reproaching, and the tranquil soul. Understand where you are and how to ascend.' },
+      { id: 'i3', title: 'Quranic Strength & Patience',      desc: 'Verses that carry you through hardship',                  videoId: '', notes: 'A selection of powerful Quranic ayaat on sabr, perseverance, and the promise that with every hardship comes ease — explored in the context of addiction recovery.' },
+      { id: 'i4', title: 'Salah as an Anchor',               desc: 'How prayer stabilises and heals the heart',               videoId: '', notes: 'Regular salah restructures your day, interrupts compulsive cycles, and creates a daily moment of accountability and surrender. Explore its role as a recovery pillar.' },
+      { id: 'i5', title: 'Brotherhood & Sisterhood',          desc: 'The role of community in recovery',                       videoId: '', notes: 'The Prophet ﷺ described the believers as one body. Explore how to seek righteous company, use your community for accountability, and support others in their struggle.' },
+      { id: 'i6', title: 'Duas for Overcoming Addiction',    desc: 'Supplications for strength and clarity',                  videoId: '', notes: 'A collection of authentic duas for seeking strength against temptation, clarity of mind, a pure heart, and gratitude in times of struggle. With Arabic, transliteration, and translation.' },
+    ]
+  },
+
+  // ── SPECIFIC ─────────────────────────────────
+  {
+    id: 'pornography', icon: '🔒', type: 'specific',
+    title: 'Pornography',
+    desc: 'Breaking free from pornography addiction',
+    topics: [
+      { id: 'p1', title: 'Understanding the Addiction',   desc: 'How pornography rewires the brain over time',               videoId: '', notes: 'Pornography activates the same neural reward pathways as drugs. Understand escalation, desensitisation, and why many find it harder to quit than substances.' },
+      { id: 'p2', title: 'Effects on the Brain',          desc: 'Desensitisation, escalation, and dopamine',                 videoId: '', notes: 'Neuroimaging studies show measurable structural changes in the brains of heavy pornography users. This video breaks down the science in plain language.' },
+      { id: 'p3', title: 'Effects on Relationships',      desc: 'How it damages intimacy and trust',                         videoId: '', notes: 'Pornography distorts expectations, reduces empathy, and erodes emotional and physical intimacy. Explore the evidence and pathways to healing.' },
+      { id: 'p4', title: 'Breaking the Cycle',            desc: 'Practical steps to quit and stay quit',                     videoId: '', notes: 'A step-by-step approach: content filtering, accountability, pattern interruption, addressing underlying emotional needs, and rebuilding healthy sexuality.' },
+      { id: 'p5', title: 'Islamic Perspective on Gaze',   desc: 'Guarding the eyes and purifying the heart',                 videoId: '', notes: 'The concept of ghayrul-basar (lowering the gaze) as both a spiritual practice and a practical behavioural technique. What the scholars say about this struggle.' },
+      { id: 'p6', title: 'Accountability & Support',      desc: 'You don\'t have to fight this alone',                       videoId: '', notes: 'Accountability partners, structured check-ins, and community support dramatically improve outcomes. How to find and use accountability without shame.' },
+    ]
+  },
+  {
+    id: 'socialmedia', icon: '📱', type: 'specific',
+    title: 'Social Media',
+    desc: 'Reclaiming your attention and presence',
+    topics: [
+      { id: 'sm1', title: 'How Social Media Hijacks You', desc: 'The psychology and design of infinite scroll',              videoId: '', notes: 'Variable reward schedules, social validation loops, and infinite scroll are deliberately engineered to maximise time-on-app. Understand what you\'re up against.' },
+      { id: 'sm2', title: 'Signs of Addiction',           desc: 'Recognising when use has become compulsive',                videoId: '', notes: 'From phantom vibrations to anxiety when the phone isn\'t nearby — explore the diagnostic criteria for social media addiction and an honest self-assessment.' },
+      { id: 'sm3', title: 'Digital Detox Strategies',     desc: 'Practical steps to reduce and restructure use',             videoId: '', notes: 'Proven strategies: app timers, phone-free zones, batching notifications, removing apps from the home screen, and the 30-day reset protocol.' },
+      { id: 'sm4', title: 'FOMO & Comparison Culture',    desc: 'Breaking free from social anxiety and envy',                videoId: '', notes: 'Social comparison on curated feeds fuels anxiety and low self-worth. Cognitive reframes and practical habits to protect your mental health online.' },
+      { id: 'sm5', title: 'Healthy Boundaries Online',    desc: 'Using social media on your own terms',                      videoId: '', notes: 'Social media doesn\'t have to be all-or-nothing. Learn to set intentional rules for use that preserve benefits while eliminating the compulsive loop.' },
+      { id: 'sm6', title: 'Building Real Connections',    desc: 'Investing in relationships that nourish you',               videoId: '', notes: 'Shallow online interaction cannot replace deep real-world connection. Practical steps to reinvest social energy into meaningful offline relationships.' },
+    ]
+  },
+  {
+    id: 'gaming', icon: '🎮', type: 'specific',
+    title: 'Gaming',
+    desc: 'Finding balance and real-world purpose',
+    topics: [
+      { id: 'g1', title: 'When Gaming Becomes Addiction', desc: 'The line between passion and compulsion',                   videoId: '', notes: 'Gaming disorder was recognised by the WHO in 2019. Explore the diagnostic criteria, how to distinguish healthy engagement from addictive use, and risk factors.' },
+      { id: 'g2', title: 'Psychology of Game Design',     desc: 'How games are engineered to keep you playing',             videoId: '', notes: 'Variable rewards, progression systems, social pressure, and FOMO mechanics are deliberately designed. Understanding the design makes the hooks visible.' },
+      { id: 'g3', title: 'Setting Healthy Limits',        desc: 'Evidence-based strategies for moderation',                  videoId: '', notes: 'Effective approaches to reducing gaming: time-blocking, session planning, removing games from easily accessible devices, and understanding personal triggers.' },
+      { id: 'g4', title: 'Finding Fulfilment Elsewhere',  desc: 'Discovering meaning and achievement beyond screens',        videoId: '', notes: 'Games provide achievement, progress, and community — legitimate needs. This video maps those needs and helps you find real-world equivalents.' },
+      { id: 'g5', title: 'Social Isolation & Gaming',     desc: 'Reconnecting with the physical world',                      videoId: '', notes: 'For many, gaming fills a void left by loneliness or social anxiety. Explore the relationship between gaming, isolation, and how to build a fulfilling offline social life.' },
+      { id: 'g6', title: 'Parent\'s Guide',               desc: 'Supporting young people with gaming addiction',             videoId: '', notes: 'Practical guidance for parents: how to have conversations without conflict, set limits that stick, and help young people develop a healthy relationship with games.' },
+    ]
+  },
+  {
+    id: 'smoking', icon: '🚭', type: 'specific',
+    title: 'Smoking & Vaping',
+    desc: 'Freeing yourself from nicotine dependency',
+    topics: [
+      { id: 'sk1', title: 'Why Nicotine is So Addictive', desc: 'The powerful grip of tobacco dependency',                   videoId: '', notes: 'Nicotine reaches the brain in seconds, triggering dopamine release. Understand physical dependency, psychological cravings, and why quitting feels so hard.' },
+      { id: 'sk2', title: 'Health Impact',                 desc: 'What smoking and vaping do to your body',                  videoId: '', notes: 'A clear-eyed look at the short and long-term health effects — from cardiovascular disease to lung cancer — and the remarkable recovery that begins within hours of quitting.' },
+      { id: 'sk3', title: 'Quitting Strategies',           desc: 'Methods with the strongest evidence base',                  videoId: '', notes: 'Cold turkey, NRT, medication, and combination approaches — a comparative review of what works, for whom, and what to pair with behavioural support.' },
+      { id: 'sk4', title: 'Managing Nicotine Cravings',    desc: 'Hour by hour, day by day',                                  videoId: '', notes: 'Most nicotine cravings last under 3 minutes. Learn the immediate techniques — the 6Ds (Delay, Deep breathe, Drink water, Do something, Distract, Discuss) — that carry you through.' },
+      { id: 'sk5', title: 'Vaping: Myths vs. Reality',     desc: 'Is vaping a safer alternative?',                           videoId: '', notes: 'The evidence on vaping health risks, its role as a cessation tool vs. a gateway to continued nicotine dependency, and what the latest research says.' },
+      { id: 'sk6', title: 'Life After Quitting',           desc: 'The remarkable recovery timeline of your body',             videoId: '', notes: 'From 20 minutes (heart rate normalises) to 10 years (lung cancer risk halves) — the inspiring physiological recovery that begins the moment you stop.' },
+    ]
+  },
+  {
+    id: 'substances', icon: '⚠️', type: 'specific',
+    title: 'Substances & Alcohol',
+    desc: 'Understanding and overcoming dependency',
+    topics: [
+      { id: 'sub1', title: 'Understanding Substance Use', desc: 'What drives dependency and addiction',                       videoId: '', notes: 'Substance use disorders exist on a spectrum. Explore the biopsychosocial model — how genetics, trauma, mental health, and environment interact to create dependency.' },
+      { id: 'sub2', title: 'Alcohol & the Muslim',        desc: 'Islamic perspective on intoxicants',                        videoId: '', notes: 'The Quranic prohibition and scholarly discussion, the shame and secrecy that many Muslims carry, and a compassionate framework for seeking help without judgment.' },
+      { id: 'sub3', title: 'Recognising Dependency',      desc: 'An honest assessment framework',                            videoId: '', notes: 'The CAGE questionnaire, AUDIT tool, and other clinically validated self-assessments to evaluate whether use has become a dependency requiring structured support.' },
+      { id: 'sub4', title: 'Harm Reduction',              desc: 'Practical approaches that save lives',                      videoId: '', notes: 'Abstinence is the goal but harm reduction saves lives in the meantime. A pragmatic, evidence-based overview without moral judgment.' },
+      { id: 'sub5', title: 'Detox & Withdrawal',          desc: 'What to know before you stop',                              videoId: '', notes: 'Alcohol and benzodiazepine withdrawal can be medically dangerous. Understand when supervised medical detox is necessary and what to expect.' },
+      { id: 'sub6', title: 'Finding Support',             desc: 'Treatment options and community resources',                  videoId: '', notes: 'From 12-step programmes to SMART Recovery, therapeutic communities, and Muslim-specific counselling. How to find the right level of care.' },
+    ]
+  },
+  {
+    id: 'food', icon: '🍽️', type: 'specific',
+    title: 'Food & Sugar',
+    desc: 'Healing your relationship with eating',
+    topics: [
+      { id: 'fd1', title: 'The Science of Food Addiction', desc: 'Why certain foods are engineered to be irresistible',      videoId: '', notes: 'Ultra-processed foods activate the same brain circuits as drugs. Understand hyperpalatability, the bliss point, and why "just eat less" advice fails.' },
+      { id: 'fd2', title: 'Sugar & the Brain',             desc: 'How sugar mimics patterns of drug dependency',             videoId: '', notes: 'Research on sugar\'s effects on dopamine, opioid receptors, and reward circuits — and what this means for cravings, withdrawal-like symptoms, and habitual overconsumption.' },
+      { id: 'fd3', title: 'Emotional Eating',              desc: 'Using food to cope — and healthier alternatives',          videoId: '', notes: 'Food is often used to manage boredom, stress, loneliness, and anxiety. Identify your emotional eating patterns and build an alternative coping toolkit.' },
+      { id: 'fd4', title: 'A Healthy Food Relationship',   desc: 'Nourishment without obsession or guilt',                   videoId: '', notes: 'Beyond dieting: how to develop a balanced, non-compulsive relationship with food that nourishes the body without feeding anxiety or guilt.' },
+      { id: 'fd5', title: 'Mindful Eating',                desc: 'Presence and intentionality at mealtimes',                 videoId: '', notes: 'Eating while distracted dramatically increases consumption. Mindful eating practices from research and Islamic etiquette (eating slowly, sitting, saying Bismillah).' },
+      { id: 'fd6', title: 'Islamic Moderation',            desc: 'The prophetic guidance on food and the stomach',           videoId: '', notes: 'The famous hadith on filling one-third of the stomach with food, one-third with water, and one-third with air — and its striking alignment with modern nutritional science.' },
+    ]
+  },
+];
+
+// ──────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────
+let currentCategoryId = null;
+
+// ──────────────────────────────────────────────
+// ROUTER
+// ──────────────────────────────────────────────
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function showHome() {
+  showView('view-home');
+}
+
+function showCategory(catId) {
+  const cat = categories.find(c => c.id === catId);
+  if (!cat) return;
+  currentCategoryId = catId;
+
+  document.getElementById('cat-bar-title').textContent = cat.title;
+  document.getElementById('cat-icon').textContent = cat.icon;
+  document.getElementById('cat-title').textContent = cat.title;
+  document.getElementById('cat-desc').textContent = cat.desc;
+
+  const list = document.getElementById('topic-list');
+  list.innerHTML = cat.topics.map((t, i) => `
+    <div class="topic-card ${t.videoId ? 'has-video' : ''}" onclick="showTopic('${catId}','${t.id}')">
+      <div class="topic-card-num">${t.videoId ? '▶' : i + 1}</div>
+      <div class="topic-card-body">
+        <div class="topic-card-title">${t.title}</div>
+        <div class="topic-card-desc">${t.desc}</div>
+      </div>
+      <div class="topic-card-arrow">›</div>
+    </div>
+  `).join('');
+
+  showView('view-category');
+}
+
+function showTopic(catId, topicId) {
+  const cat = categories.find(c => c.id === catId);
+  if (!cat) return;
+  const topic = cat.topics.find(t => t.id === topicId);
+  if (!topic) return;
+
+  document.getElementById('topic-bar-title').textContent = topic.title;
+  document.getElementById('topic-title').textContent = topic.title;
+  document.getElementById('topic-desc').textContent = topic.desc;
+  document.getElementById('topic-notes').textContent = topic.notes;
+
+  document.getElementById('topic-back-btn').onclick = () => showCategory(catId);
+
+  const container = document.getElementById('video-container');
+  if (topic.videoId) {
+    container.innerHTML = `<iframe
+      src="https://www.youtube.com/embed/${topic.videoId}?rel=0&modestbranding=1&playsinline=1"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+      loading="lazy"
+    ></iframe>`;
+  } else {
+    container.innerHTML = `
+      <div class="video-placeholder">
+        <div class="video-placeholder-icon">🎬</div>
+        <div class="video-placeholder-text">Video Coming Soon</div>
+        <div class="video-placeholder-sub">This lesson is being prepared — check back soon.</div>
+      </div>`;
+  }
+
+  showView('view-topic');
+}
+
+// ──────────────────────────────────────────────
+// BUILD HOME GRIDS
+// ──────────────────────────────────────────────
+function buildGrids() {
+  const generalGrid   = document.getElementById('general-grid');
+  const specificGrid  = document.getElementById('specific-grid');
+
+  categories.forEach(cat => {
+    const card = document.createElement('div');
+    card.className = `cat-card ${cat.type}`;
+    card.onclick = () => showCategory(cat.id);
+    const videoCount = cat.topics.filter(t => t.videoId).length;
+    const badge = videoCount > 0
+      ? `<span style="font-size:11px;color:var(--primary);font-weight:700;">${videoCount} video${videoCount > 1 ? 's' : ''}</span>`
+      : `<span style="font-size:11px;color:var(--muted);">${cat.topics.length} topics</span>`;
+    card.innerHTML = `
+      <span class="cat-card-icon">${cat.icon}</span>
+      <div class="cat-card-title">${cat.title}</div>
+      <div class="cat-card-desc">${cat.desc}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+        ${badge}
+        <span style="font-size:18px;color:var(--primary);">›</span>
+      </div>`;
+    (cat.type === 'general' ? generalGrid : specificGrid).appendChild(card);
+  });
+}
+
+buildGrids();
+</script>
+</body>
+</html>
